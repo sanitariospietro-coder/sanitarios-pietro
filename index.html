@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sanitarios Pietro</title>
+<style>
+body{
+font-family: Arial, sans-serif;
+background:#f4f4f4;
+margin:0;
+padding:0;
+text-align:center;
+}
+header{
+background:#1f2937;
+color:white;
+padding:20px;
+font-size:28px;
+font-weight:bold;
+}
+.container{
+padding:20px;
+}
+input{
+padding:8px;
+margin:5px;
+width:200px;
+}
+button{
+padding:8px 12px;
+margin:5px;
+border:none;
+cursor:pointer;
+border-radius:6px;
+}
+.add{
+background:#2563eb;
+color:white;
+}
+.buy{
+background:#16a34a;
+color:white;
+}
+.whatsapp{
+background:#25D366;
+color:white;
+}
+.card{
+background:white;
+padding:15px;
+margin:15px auto;
+width:250px;
+border-radius:10px;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+img{
+width:100%;
+height:150px;
+object-fit:cover;
+border-radius:8px;
+}
+</style>
+</head>
+<body>
+
+<header>Sanitarios Pietro</header>
+
+<div class="container">
+
+<h3>Agregar Producto</h3>
+<input id="name" placeholder="Nombre">
+<input id="price" type="number" placeholder="Precio">
+<input id="stock" type="number" placeholder="Stock">
+<input id="payment" placeholder="Link MercadoPago">
+<input id="image" placeholder="URL Imagen">
+<br>
+<button class="add" onclick="addProduct()">Guardar Producto</button>
+
+<h2>Productos</h2>
+<div id="products"></div>
+
+</div>
+
+<script>
+let products = JSON.parse(localStorage.getItem("products")) || [];
+const telefono = "542213646925";
+
+function save(){
+localStorage.setItem("products", JSON.stringify(products));
+render();
+}
+
+function addProduct(){
+const name = document.getElementById("name").value;
+const price = document.getElementById("price").value;
+const stock = document.getElementById("stock").value;
+const payment = document.getElementById("payment").value;
+const image = document.getElementById("image").value;
+
+if(!name || !price || !stock) return;
+
+products.push({id:Date.now(), name, price, stock, payment, image});
+save();
+}
+
+function buy(id){
+const product = products.find(p=>p.id===id);
+if(product.stock <= 0) return;
+product.stock--;
+window.open(product.payment, "_blank");
+save();
+}
+
+function whatsapp(id){
+const product = products.find(p=>p.id===id);
+const msg = Hola! Quiero consultar por ${product.name} - Precio: $${product.price};
+window.open(https://wa.me/${telefono}?text=${encodeURIComponent(msg)},"_blank");
+}
+
+function render(){
+const container = document.getElementById("products");
+container.innerHTML="";
+products.forEach(p=>{
+container.innerHTML+=`
+<div class="card">
+${p.image? <img src="${p.image}">:""}
+<h4>${p.name}</h4>
+<p>Precio: $${p.price}</p>
+<p>Stock: ${p.stock}</p>
+<button class="buy" onclick="buy(${p.id})">Comprar Online</button>
+<button class="whatsapp" onclick="whatsapp(${p.id})">WhatsApp</button>
+</div>
+`;
+});
+}
+render();
+</script>
+
+</body>
+</html>
